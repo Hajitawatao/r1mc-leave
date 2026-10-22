@@ -1,0 +1,15 @@
+{
+  "name": "r1mc-leave-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "R1MC HRIS - Leave Enrollment and Approval Module (Vue 3 + Node.js/Express + MySQL)",
+  "scripts": {
+    "setup": "npm --prefix server install --omit=dev && node server/scripts/migrate.js",
+    "migrate": "node server/scripts/migrate.js",
+    "seed:demo": "node server/scripts/seed-demo.js",
+    "build": "npm --prefix client install && npm --prefix client run build",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "start": "node server/src/index.js"
+  }
+}
