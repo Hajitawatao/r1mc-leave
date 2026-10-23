@@ -58,6 +58,26 @@ async function main() {
   await server.end();
 
   const db = await mysql.createConnection({ ...conn, database, multipleStatements: true });
+
+  // Refuse to build on top of another system's tables (e.g. an old Laravel app that used the same database name)
+  const SIGNATURE = { users: 'employee_id', employees: 'employee_no', departments: 'head_employee_id', settings: 'setting_key' };
+  const [existing] = await db.query('SELECT TABLE_NAME t FROM information_schema.TABLES WHERE TABLE_SCHEMA = ?', [database]);
+  const conflicts = [];
+  for (const [table, column] of Object.entries(SIGNATURE)) {
+    if (!existing.some((r) => r.t.toLowerCase() === table)) continue;
+    const [[col]] = await db.query('SELECT COUNT(*) n FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?', [database, table, column]);
+    if (!col.n) conflicts.push(table);
+  }
+  if (conflicts.length) {
+    await db.end();
+    console.error(`\nThe database "${database}" already contains tables from another system: ${conflicts.join(', ')}.`);
+    console.error('Nothing was changed. Choose one:');
+    console.error('  A) Use a new database name: delete server\\.env, run setup.bat again, and enter a different');
+    console.error('     database name (e.g. r1mc_leave_system) when asked.');
+    console.error(`  B) If "${database}" is an old test database you no longer need, drop it in phpMyAdmin, then run setup.bat again.`);
+    process.exit(1);
+  }
+
   await db.query(fs.readFileSync(path.join(__dirname, '..', 'db', 'schema.sql'), 'utf8'));
   console.log('Tables ready.');
 
