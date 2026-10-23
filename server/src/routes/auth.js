@@ -30,6 +30,30 @@ router.post('/login', wrap(async (req, res) => {
   res.json({ ok: true, must_change_password: !!u.must_change_password });
 }));
 
+// "Forgot password": no email on the LAN, so the request goes to HRMO, who resets it from Employees & accounts.
+// Always answers the same way so the form cannot be used to discover which usernames exist.
+router.post('/forgot-password', wrap(async (req, res) => {
+  const username = String(req.body.username || '').trim();
+  if (!username) throw new HttpError(400, 'Enter your username or employee number');
+  const u = await db.one(
+    `SELECT u.id, e.employee_no, e.first_name, e.last_name, d.name department_name
+       FROM users u JOIN employees e ON e.id = u.employee_id LEFT JOIN departments d ON d.id = e.department_id
+      WHERE u.is_active = 1 AND (u.username = ? OR e.employee_no = ?) LIMIT 1`, [username, username]);
+  if (u) {
+    const recent = await db.one(
+      `SELECT id FROM audit_logs WHERE action = 'PASSWORD_RESET_REQUEST' AND entity_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 15 MINUTE) LIMIT 1`, [String(u.id)]);
+    if (!recent) {
+      const hr = (await db.query(
+        `SELECT DISTINCT x.id FROM users x JOIN user_roles r ON r.user_id = x.id WHERE r.role IN ('HR','ADMIN') AND x.is_active = 1 AND x.id <> ?`, [u.id])).map((r) => r.id);
+      const { notify } = require('../notify');
+      await notify(hr, null, 'Password reset requested',
+        `${u.first_name} ${u.last_name} (${u.employee_no}${u.department_name ? ', ' + u.department_name : ''}) forgot their password. Reset it in Employees & accounts > Edit > Reset password, then tell them the temporary password in person.`);
+      await audit({ ip: req.ip, user: null }, 'PASSWORD_RESET_REQUEST', 'user', u.id, { username });
+    }
+  }
+  res.json({ ok: true });
+}));
+
 router.post('/logout', (req, res) => { clear(res); res.json({ ok: true }); });
 
 router.get('/me', authenticate, wrap(async (req, res) => {

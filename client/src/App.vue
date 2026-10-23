@@ -3,9 +3,7 @@
   <div v-else class="shell">
     <aside class="sidebar" :class="{ open: menuOpen }" @click="onNavClick">
       <div class="brand">
-        <div class="brand-mark">
-          <svg viewBox="0 0 20 20"><path d="M7.5 2h5v5.5H18v5h-5.5V18h-5v-5.5H2v-5h5.5z" fill="#0f5e4f" /></svg>
-        </div>
+        <img src="/r1mc-logo.png" alt="R1MC" class="brand-logo" />
         <div>
           <div class="brand-title">{{ store.settings.org_short || 'R1MC' }} Leave System</div>
           <div class="brand-sub">HRIS · Leave Enrollment</div>
