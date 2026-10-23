@@ -1,4 +1,5 @@
-// Role workspaces: each role gets its own menu, colour and home screen (SRD 3.3 Stakeholders and Target Users).
+// Role workspaces: Admin (MIS), HRMO, Accounting, OSH, Immediate Supervisor, Employee.
+// Each gets its own menu and home screen; accents come from the R1MC seal (navy, green, gold, red).
 // A person with several roles switches workspace from the drawer.
 
 const DELEGATE = { to: '/delegations', label: 'Delegate approval', icon: 'share' };
@@ -19,7 +20,7 @@ const HR_ADMIN = [
 
 export const WORKSPACES = {
   EMPLOYEE: {
-    label: 'Employee', icon: 'user', accent: '#2e7d4f', home: '/',
+    label: 'Employee', icon: 'user', accent: '#2f7d5a', home: '/',
     blurb: 'File leave, track approval and check your credits.',
     nav: [
       { to: '/', label: 'Dashboard', icon: 'home' },
@@ -30,7 +31,7 @@ export const WORKSPACES = {
     ],
   },
   SUPERVISOR: {
-    label: 'Supervisor', icon: 'briefcase', accent: '#0b6fa4', home: '/home/approver',
+    label: 'Immediate Supervisor', icon: 'briefcase', accent: '#2b62a8', home: '/home/approver',
     blurb: 'Review your team’s leave against workload and staffing (SRD 4.1.2).',
     nav: [
       { to: '/home/approver', label: 'Dashboard', icon: 'home' },
@@ -41,17 +42,17 @@ export const WORKSPACES = {
     ],
   },
   OSH: {
-    label: 'OSH', icon: 'heart', accent: '#00897b', home: '/home/approver',
+    label: 'OSH', icon: 'heart', accent: '#1f7f86', home: '/home/approver',
     blurb: 'Medical clearance of sick leave before it goes to the supervisor.',
     nav: [{ to: '/home/approver', label: 'Dashboard', icon: 'home' }, INBOX, DELEGATE],
   },
   HR: {
-    label: 'HRMO', icon: 'users', accent: '#1a3f8f', home: '/home/hr',
+    label: 'HRMO', icon: 'users', accent: '#1d3f8f', home: '/home/hr',
     blurb: 'Validate leave, certify credits, mark LWOP and maintain leave records (SRD 4.1.3).',
     nav: [{ to: '/home/hr', label: 'Dashboard', icon: 'home' }, INBOX, ALL, REPORTS, DELEGATE, ...HR_ADMIN],
   },
   ACCOUNTING: {
-    label: 'Accounting', icon: 'wallet', accent: '#b26a00', home: '/home/accounting',
+    label: 'Accounting', icon: 'wallet', accent: '#a8771a', home: '/home/accounting',
     blurb: 'Payroll review of approved leave and leave without pay (SRD 3.2.6).',
     nav: [
       { to: '/home/accounting', label: 'Dashboard', icon: 'home' },
@@ -61,18 +62,8 @@ export const WORKSPACES = {
       ALL, DELEGATE,
     ],
   },
-  CAO: {
-    label: 'CAO', icon: 'stamp', accent: '#6a3d9a', home: '/home/approver',
-    blurb: 'Official processing and record-keeping of leave (SRD 4.1.3).',
-    nav: [{ to: '/home/approver', label: 'Dashboard', icon: 'home' }, INBOX, ALL, REPORTS, DELEGATE],
-  },
-  MANAGEMENT: {
-    label: 'Management', icon: 'chart', accent: '#455a64', home: '/reports',
-    blurb: 'Leave utilization, absenteeism and workforce availability (SRD 3.2.5).',
-    nav: [{ to: '/reports', label: 'Analytics', icon: 'chart' }, ALL],
-  },
   ADMIN: {
-    label: 'Admin (MIS)', icon: 'monitor', accent: '#b3261e', home: '/home/admin',
+    label: 'Admin (MIS)', icon: 'monitor', accent: '#8e3b46', home: '/home/admin',
     blurb: 'Full access: system setup, accounts and every module (SRD 3.3 MIS team).',
     nav: [
       { to: '/home/admin', label: 'Dashboard', icon: 'home' },
@@ -84,7 +75,7 @@ export const WORKSPACES = {
   },
 };
 
-const ORDER = ['ADMIN', 'HR', 'ACCOUNTING', 'CAO', 'MANAGEMENT', 'OSH', 'SUPERVISOR', 'EMPLOYEE'];
+const ORDER = ['ADMIN', 'HR', 'ACCOUNTING', 'OSH', 'SUPERVISOR', 'EMPLOYEE'];
 
 export function availableWorkspaces(user) {
   if (!user) return [];
@@ -99,4 +90,4 @@ export function defaultWorkspace(user) {
   return list.length ? list[0].key : 'EMPLOYEE';
 }
 
-export const ROLE_LABEL = { EMPLOYEE: 'Employee', SUPERVISOR: 'Supervisor', OSH: 'OSH', HR: 'HRMO', ACCOUNTING: 'Accounting', CAO: 'CAO', MANAGEMENT: 'Management', ADMIN: 'Admin (MIS)' };
+export const ROLE_LABEL = { EMPLOYEE: 'Employee', SUPERVISOR: 'Immediate Supervisor', OSH: 'OSH', HR: 'HRMO', ACCOUNTING: 'Accounting', ADMIN: 'Admin (MIS)' };

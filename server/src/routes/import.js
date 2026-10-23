@@ -14,7 +14,7 @@ router.use(requireRole('HR'));
 
 const BASE_COLUMNS = ['employee_no', 'last_name', 'first_name', 'middle_name', 'suffix', 'sex', 'position', 'salary_grade', 'monthly_salary',
   'department_code', 'department_name', 'supervisor_employee_no', 'employment_status', 'date_hired', 'email', 'roles'];
-const ROLES = ['HR', 'ACCOUNTING', 'OSH', 'CAO', 'MANAGEMENT'];
+const ROLES = ['HR', 'ACCOUNTING', 'OSH'];
 
 async function creditTypes() {
   return db.query('SELECT id, code FROM leave_types WHERE is_credit_type = 1 ORDER BY sort_order');
@@ -35,7 +35,7 @@ router.get('/template', wrap(async (req, res) => {
     'sex: M or F. date_hired: YYYY-MM-DD (or an Excel date). monthly_salary: number.',
     'department_code + department_name: the department is created if it does not exist.',
     'supervisor_employee_no: the immediate supervisor (must also be in the file or already in the system).',
-    'roles (optional): comma-separated from HR, ACCOUNTING, OSH, CAO, MANAGEMENT. ADMIN cannot be granted by import.',
+    'roles (optional): comma-separated from HR, ACCOUNTING, OSH. ADMIN cannot be granted by import.',
     '*_balance columns: opening leave credits from the Excel leave ledger, as of the cut-off date.',
     'Opening balances are only applied to employees with no leave history yet, unless you tick "Overwrite balances".',
     'New employees get a login: username = employee_no, initial password = employee_no (must be changed at first login).',

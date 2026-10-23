@@ -56,20 +56,19 @@ import { ref, onMounted } from 'vue';
 import { api } from '../../api';
 import { WORKSPACES } from '../../workspaces';
 
-const COLS = ['EMPLOYEE', 'SUPERVISOR', 'OSH', 'HR', 'ACCOUNTING', 'CAO', 'MANAGEMENT', 'ADMIN'].map((k) => ({ key: k, label: WORKSPACES[k].label }));
+const COLS = ['EMPLOYEE', 'SUPERVISOR', 'OSH', 'HR', 'ACCOUNTING', 'ADMIN'].map((k) => ({ key: k, label: WORKSPACES[k].label }));
 const all = (v = 1) => Object.fromEntries(COLS.map((c) => [c.key, v]));
 const MATRIX = [
   { cap: 'File leave, upload documents, track status, get notifications', srd: '3.2.1, 4.1.1, 4.1.4', who: all() },
   { cap: 'View own balances and leave card (ledger)', srd: '3.2.1, 4.1.4', who: all() },
-  { cap: 'Approve / return / disapprove as immediate supervisor or department head', srd: '4.1.2', who: { SUPERVISOR: 1, ADMIN: 2 } },
+  { cap: 'Approve / return / disapprove for own staff', srd: '4.1.2', who: { SUPERVISOR: 1, ADMIN: 2 } },
   { cap: 'Medical clearance of sick leave', srd: 'Process flow (OSH)', who: { OSH: 1, ADMIN: 2 } },
-  { cap: 'Validate eligibility, certify credits, mark LWOP', srd: '4.1.3', who: { HR: 1, ADMIN: 2 } },
+  { cap: 'Validate eligibility, certify credits, mark LWOP', srd: '4.1.3 (HRIC)', who: { HR: 1, ADMIN: 2 } },
   { cap: 'Payroll review of approved leave', srd: '3.2.6, Process flow (Accounting)', who: { ACCOUNTING: 1, ADMIN: 2 } },
-  { cap: 'Official processing and record-keeping (if added to a route)', srd: '4.1.3 (CAO/OSM)', who: { CAO: 1, ADMIN: 2 } },
-  { cap: 'Delegate approval rights while away', srd: '3.2.3', who: { SUPERVISOR: 1, OSH: 1, HR: 1, ACCOUNTING: 1, CAO: 1, ADMIN: 1 } },
-  { cap: 'View team applications and team reports', srd: '4.1.5', who: { SUPERVISOR: 2, HR: 1, ACCOUNTING: 1, CAO: 1, MANAGEMENT: 1, ADMIN: 1 } },
-  { cap: 'View all applications and organization-wide reports', srd: '3.2.5, 4.1.5', who: { HR: 1, ACCOUNTING: 1, CAO: 1, MANAGEMENT: 1, ADMIN: 1 } },
-  { cap: 'LWOP report and balance reconciliation for payroll', srd: '4.1.5', who: { HR: 1, ACCOUNTING: 1, MANAGEMENT: 1, ADMIN: 1 } },
+  { cap: 'Delegate approval rights while away', srd: '3.2.3', who: { SUPERVISOR: 1, OSH: 1, HR: 1, ACCOUNTING: 1, ADMIN: 1 } },
+  { cap: 'View team applications and team reports', srd: '4.1.5', who: { SUPERVISOR: 2, HR: 1, ACCOUNTING: 1, ADMIN: 1 } },
+  { cap: 'View all applications and organization-wide reports', srd: '3.2.5, 4.1.5', who: { HR: 1, ACCOUNTING: 1, ADMIN: 1 } },
+  { cap: 'LWOP report and balance reconciliation for payroll', srd: '4.1.5', who: { HR: 1, ACCOUNTING: 1, ADMIN: 1 } },
   { cap: 'Manage employees, logins and roles; reset passwords', srd: '3.3 (Administrators)', who: { HR: 1, ADMIN: 1 } },
   { cap: 'Post accruals, adjust balances, import from Excel', srd: '3.3 (HRMO)', who: { HR: 1, ADMIN: 1 } },
   { cap: 'Configure leave types, approval routes, departments, holidays', srd: '3.3 (HRMO)', who: { HR: 1, ADMIN: 1 } },
@@ -81,8 +80,6 @@ const ROLES = [
   { key: 'OSH', srd: 'SRD process flow', desc: 'Checks medical results and clears sick leave before it reaches the supervisor.', how: 'Assign the OSH role in Employees.' },
   { key: 'HR', srd: 'SRD 3.3 HRMO Staff, 4.1.3 HRIC', desc: 'Configure leave types and policies, validate applications, certify credits, mark LWOP, generate reports.', how: 'Assign the HR role in Employees.' },
   { key: 'ACCOUNTING', srd: 'SRD 3.2.6, process flow', desc: 'Reviews approved leave for payroll and receives leave-without-pay notices.', how: 'Assign the Accounting role in Employees.' },
-  { key: 'CAO', srd: 'SRD 4.1.3 CAO Action Officer (OSM)', desc: 'Official processing and record-keeping. Acts only if HR adds a CAO step to a route.', how: 'Assign the CAO role in Employees.' },
-  { key: 'MANAGEMENT', srd: 'SRD 3.3 Hospital Management', desc: 'Uses reports and analytics on utilization and absenteeism. Read-only.', how: 'Assign the Management role in Employees.' },
   { key: 'ADMIN', srd: 'SRD 3.3 MIS Team', desc: 'Develops, maintains and secures the system. Full access to every module.', how: 'Assign the Admin role in Employees (Admins only).' },
 ];
 

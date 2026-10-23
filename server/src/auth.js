@@ -4,8 +4,8 @@ const db = require('./db');
 const { HttpError, today } = require('./util');
 
 const COOKIE = 'lv_token';
-// Roles that see every employee's applications and reports (SRD 3.3: HRMO, management, payroll/accounting, CAO records, MIS)
-const ORG_WIDE_ROLES = ['HR', 'ADMIN', 'MANAGEMENT', 'ACCOUNTING', 'CAO'];
+// Roles that see every employee's applications and reports: HRMO, Accounting (payroll), Admin (MIS)
+const ORG_WIDE_ROLES = ['HR', 'ADMIN', 'ACCOUNTING'];
 
 function issue(res, userId) {
   const token = jwt.sign({ uid: userId }, config.jwtSecret, { expiresIn: `${config.sessionHours}h` });

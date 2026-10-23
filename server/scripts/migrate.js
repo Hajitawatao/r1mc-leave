@@ -122,6 +122,10 @@ async function main() {
 
   // the built-in admin is not a real employee: keep it out of headcount, accruals and pickers
   await db.query("UPDATE employees SET is_active = 0 WHERE employee_no = 'ADMIN'");
+  // Roles retired in v1.1: CAO and Management. Their approval steps move to HR.
+  await db.query("UPDATE approval_steps SET approver_role = 'HR' WHERE approver_type = 'ROLE' AND approver_role IN ('CAO','MANAGEMENT')");
+  await db.query("UPDATE request_steps SET approver_role = 'HR' WHERE approver_type = 'ROLE' AND approver_role IN ('CAO','MANAGEMENT') AND status IN ('WAITING','PENDING')");
+  await db.query("DELETE FROM user_roles WHERE role IN ('CAO','MANAGEMENT')");
   const [[admins]] = await db.query("SELECT COUNT(*) n FROM user_roles WHERE role = 'ADMIN'");
   if (!admins.n) {
     const password = process.env.ADMIN_PASSWORD || 'Admin@12345';

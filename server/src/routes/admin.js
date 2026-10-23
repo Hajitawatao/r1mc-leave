@@ -10,7 +10,8 @@ const { HttpError, wrap, audit, isDateStr, today, sendCsv } = require('../util')
 const router = express.Router();
 const HR = requireRole('HR');
 const ADMIN = requireRole('ADMIN');
-const ROLES = ['HR', 'ACCOUNTING', 'OSH', 'CAO', 'MANAGEMENT', 'ADMIN'];
+// Sign-in roles: Admin (MIS), HR, OSH, Accounting. Employee is everyone; Immediate Supervisor comes from the org chart.
+const ROLES = ['HR', 'ACCOUNTING', 'OSH', 'ADMIN'];
 
 // ---------- Departments ----------
 router.get('/departments', wrap(async (req, res) => {

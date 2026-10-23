@@ -177,7 +177,7 @@ const hasPrevious = computed(() => d.value.steps.some((s) => s.step_order < d.va
 const canAttach = computed(() => ['PENDING', 'RETURNED'].includes(r.value.status) && r.value.employee_id === store.user.employee_id);
 const DETAIL = { WITHIN_PH: 'Within the Philippines', ABROAD: 'Abroad', IN_HOSPITAL: 'In hospital', OUT_PATIENT: 'Out patient', ILLNESS: 'Illness', MASTERS: "Completion of Master's degree", BAR_BOARD: 'BAR/Board examination review', MONETIZATION: 'Monetization', TERMINAL: 'Terminal leave' };
 const detailLabel = computed(() => DETAIL[r.value.detail_option] || r.value.detail_option);
-const ROLE = { HR: 'HRMO', ACCOUNTING: 'Accounting', OSH: 'OSH', CAO: 'Chief Administrative Officer', MANAGEMENT: 'Management', ADMIN: 'Administrator' };
+const ROLE = { HR: 'HRMO', ACCOUNTING: 'Accounting', OSH: 'OSH', ADMIN: 'Admin (MIS)' };
 const roleName = (x) => ROLE[x] || x;
 const stepStatus = (s) => ({ WAITING: 'waiting', PENDING: 'for action', APPROVED: 'approved', RETURNED: 'returned', DISAPPROVED: 'disapproved', SKIPPED: 'skipped' }[s.status]);
 

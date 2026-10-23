@@ -19,7 +19,7 @@ It runs on the hospital LAN. Staff open it in a browser and nothing is installed
 | Tracking ID (4.1.1) | Every application gets a tracking number in the format `LV-2026-000123`. |
 | HR internal control / LWOP (4.1.3) | Credits are deducted on final approval. Days beyond the balance automatically become leave without pay, and the HR step can also set LWOP days manually. Balance changes are written to a ledger. |
 | Centralized database (3.2.4) | All data lives in one MySQL database. The Excel leave ledger is replaced by a per-employee ledger (leave card). |
-| Reports & analytics (3.2.5, 4.1.5) | Dashboard showing who is on leave today, absenteeism, monthly trend and usage by leave type. Leave summary by type, department, employee or month. Balance reconciliation report. **LWOP report for payroll**. CSV export everywhere. Supervisors see their own team only; HR, Accounting and Management see the whole hospital. |
+| Reports & analytics (3.2.5, 4.1.5) | Dashboard showing who is on leave today, absenteeism, monthly trend and usage by leave type. Leave summary by type, department, employee or month. Balance reconciliation report. **LWOP report for payroll**. CSV export everywhere. Supervisors see their own team only; HR, Accounting and Admin see the whole hospital. |
 | Integration with HRIS/payroll (3.2.6) | Employees and opening balances are imported from Excel/CSV (Medsys export + leave ledger). Payroll receives the LWOP report as CSV. See "Not included" below. |
 | Security (3.2.7, RA 10173) | Accounts are created by HR only (no self-registration). Passwords are bcrypt-hashed, and the initial password must be changed at first login. Accounts lock for 15 minutes after 5 failed logins. Access is role-based. Attachments are visible only to the applicant, the applicant's approvers and HR. Logins, leave actions, credit changes and configuration changes are recorded in an audit log in the database (SRD 3.2.7). By request there is no screen for it. Every application still shows its own action history. |
 | CSC Form 6 | Every application prints as **CSC Form No. 6 (Revised 2020)**. The 7.A credit certification and approver names are filled in automatically. |
@@ -29,26 +29,18 @@ VL and SL each earn **1.25 days per month**. Also preloaded: Mandatory/Forced (c
 **HRMO must review every rule** under *Leave types & approvals* before go-live. All rules can be edited.
 
 ### Roles and workspaces
-Each role has its own **workspace**: its own colour, menu and dashboard. A person with several roles switches workspace from the drawer. The full capability matrix, mapped to the SRD, is under **Roles & access** in the app.
+Six roles, each with its own workspace (menu and dashboard). A person with several roles switches workspace from the drawer. The capability matrix, mapped to the SRD, is under **Roles & access** in the app.
 
-| Role | SRD | Can do |
+| Role | How someone gets it | Can do |
 |---|---|---|
-| Employee | 3.3 Employees | File leave, upload documents, track status, see own balances and leave card. Everyone has this role. |
-| Supervisor / Department head | 3.3 Supervisors and Managers, 4.1.2 | Approve, return or disapprove for direct reports or department; see team applications and reports. **Not assigned as a role**: it follows the *Immediate supervisor* and *Department head* fields. |
-| OSH | Process flow | Medical clearance of sick leave. |
-| HRMO | 3.3 HRMO Staff, 4.1.3 HRIC | Validate, certify credits, mark LWOP. Manage employees, accounts, credits, import, leave types, routes, holidays. All applications and reports. |
-| Accounting | 3.2.6, process flow | Payroll review step; LWOP report and balance reconciliation; all applications. |
-| CAO | 4.1.3 CAO Action Officer (OSM) | Approval step if added to a route; all applications and reports (record-keeping). |
-| Management | 3.3 Hospital Management | Read-only analytics and all applications. |
-| Admin (MIS) | 3.3 MIS Team | **Everything**, including settings and granting the Admin role. Can act on any approval step; such actions show as **[Admin override]** in the history. |
+| Employee | Everyone with a login | File leave, upload documents, track status, see own balances and leave card |
+| Immediate Supervisor | Automatic: set as someone's *Immediate supervisor*, or as a *Department head* | Approve, return or disapprove for their own staff; team applications and reports |
+| OSH | Assigned in Employees | Medical clearance of sick leave |
+| HR (HRMO) | Assigned in Employees | Validate, certify credits, mark LWOP; manage employees, logins, credits, import, leave types, routes, holidays; all applications and reports |
+| Accounting | Assigned in Employees | Payroll review step; LWOP report and balance reconciliation; all applications |
+| Admin (MIS) | Assigned in Employees (by an Admin) | Everything, including settings. Approvals outside its own role are labeled **[Admin override]** |
 
----|---|
-| Every employee | File leave, track it, see own leave card, delegate approval if they approve for others |
-| Supervisor / Department head | Approve for their direct reports or department, see team applications and reports. This is **not** a role: it follows the *Immediate supervisor* field and the *Department head* field. |
-| HR | Everything HR: employees, accounts, credits, accruals, import, leave types, routes, holidays, all reports, and the HR approval step |
-| Accounting / OSH / CAO | Their approval step in a route. Accounting also gets the LWOP payroll report |
-| Management | Organization-wide reports (read-only) |
-| Admin | Everything, plus settings and audit trail |
+The default approval route is Immediate Supervisor → HR (certifies credits) → Accounting; Sick Leave starts with OSH. HR can change routes per leave type.
 
 ---
 
@@ -67,10 +59,10 @@ The frontend is already built (`server/public`), so the server PC does not need 
 
 ### First-time configuration (in this order)
 1. **Settings**: agency name and address, and the default signatories for Form 6.
-2. **Leave types & approvals**: review each leave type and its approval route. If R1MC uses a CAO step, add it here (role `CAO`).
+2. **Leave types & approvals**: review each leave type and its approval route.
 3. **Holidays**: add special non-working days declared by proclamation. Regular 2026 holidays are preloaded.
 4. **Import from Excel**: download the template, fill it from the Medsys export and the Excel leave ledger (`vl_balance`, `sl_balance` as of the cut-off date), validate, then import.
-5. **Employees & accounts**: give HR, Accounting, OSH and Management staff their roles. Set department heads under **Departments**.
+5. **Employees & accounts**: give HR, Accounting and OSH staff their roles, and set every employee's Immediate supervisor. Set department heads under **Departments**.
 6. **Leave credits**: post the monthly accrual for every month after the ledger cut-off date, then every month from then on.
 
 ### Daily operations
@@ -85,7 +77,7 @@ Replace the files with the new version, keeping `server\.env` and `server\upload
 
 ## UAT / demo data
 `npm run seed:demo` adds departments and employees covering every approver role. **Do not run it on the production database.**
-Password `Demo@1234` for all: `d-1002` Employee (nurse) · `d-1001` Supervisor (chief nurse) · `d-4001` OSH · `d-2002` HRMO · `d-3001` Accounting · `d-6001` CAO · `d-7001` Management · `d-5001` Admin (MIS).
+Password `Demo@1234` for all: `d-1002` Employee (nurse) · `d-1001` Immediate Supervisor (chief nurse) · `d-4001` OSH · `d-2002` HR · `d-3001` Accounting · `d-5001` Admin (MIS).
 
 ## Development
 ```
@@ -103,7 +95,7 @@ Run `save-to-git.bat` to commit your local edits and push them to GitHub.
 
 ## Decisions HRMO should confirm before sign-off
 These were not specified in the SRD. They are configurable, so a different decision means a settings change, not a rewrite.
-1. **Approval route.** The SRD text says Supervisor → HRIC → CAO Action Officer (OSM). The SRD diagram says Supervisor → HR → Accounting, with OSH first for sick leave. The system ships with the diagram version.
+1. **Approval route.** The SRD text says Supervisor → HRIC → CAO Action Officer (OSM). The SRD diagram says Supervisor → HR → Accounting, with OSH first for sick leave. The system ships with the diagram version; the CAO is not a system role (the CAO signs Form 6 section 7.C on paper, name set in Settings).
 2. **OSH clearance for every sick leave.** It is in the diagram, but a 1-day sick leave going to OSH may be too heavy. Remove the OSH step from the Sick Leave route if not needed.
 3. **Accrual reduction for LWOP** uses 1.25 ÷ 30 per day without pay. Confirm it matches the CSC table HRMO uses.
 4. **Accrual for employees hired mid-month.** An employee hired on or before the last day of the month gets that month's full 1.25 days. If HRMO prorates the first month, use *Adjust a balance* for the difference.

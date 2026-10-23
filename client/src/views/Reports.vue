@@ -7,7 +7,7 @@
       <button :class="{ on: tab === 'overview' }" @click="tab = 'overview'">Overview</button>
       <button :class="{ on: tab === 'summary' }" @click="tab = 'summary'">Leave summary</button>
       <button :class="{ on: tab === 'balances' }" @click="tab = 'balances'; loadBalances()">Balances</button>
-      <button v-if="hasRole('HR', 'ACCOUNTING', 'MANAGEMENT')" :class="{ on: tab === 'lwop' }" @click="tab = 'lwop'; loadLwop()">LWOP for payroll</button>
+      <button v-if="hasRole('HR', 'ACCOUNTING')" :class="{ on: tab === 'lwop' }" @click="tab = 'lwop'; loadLwop()">LWOP for payroll</button>
     </div>
 
     <template v-if="tab === 'overview' && dash">
@@ -18,7 +18,7 @@
       </div>
       <div class="grid-2" style="margin-top:16px">
         <div class="card">
-          <div class="card-head"><h2>Leave days per month, {{ dash.year }}</h2><span class="faint"><span style="color:#b07ad1">■</span> without pay</span></div>
+          <div class="card-head"><h2>Leave days per month, {{ dash.year }}</h2><span class="faint"><span style="color:var(--gold)">■</span> without pay</span></div>
           <div class="card-body">
             <div class="bars">
               <div v-for="m in dash.monthly" :key="m.month" class="bar" :title="`${m.days} day(s), ${m.lwop} without pay`">

@@ -51,7 +51,7 @@
         <label class="field">Department<select class="input" v-model="form.department_id"><option :value="null">—</option><option v-for="d in depts" :key="d.id" :value="d.id">{{ d.name }}</option></select></label>
         <label class="field">Immediate supervisor<EmployeePicker v-model="form.supervisor_id" :label="form.supervisor_name || ''" /></label>
         <label class="field span-2">Email <span class="help">Optional. Used for email notifications if the server has email set up.</span><input class="input" type="email" v-model="form.email" /></label>
-        <div class="field span-2">System roles <span class="help">Everyone can file leave. Supervisors are set by the “Immediate supervisor” field and department heads, not by a role.</span>
+        <div class="field span-2">System roles <span class="help">Everyone can file leave. Immediate Supervisor is automatic: whoever is set as someone's Immediate supervisor (or a department head) approves for them.</span>
           <div class="row" style="font-weight:400">
             <label v-for="r in roleOptions" :key="r.v" class="check"><input type="checkbox" :value="r.v" v-model="form.roles" :disabled="r.v === 'ADMIN' && !hasRole('ADMIN')" /> {{ r.l }}</label>
           </div>
@@ -91,7 +91,7 @@ const showInactive = ref(false);
 const form = ref(null);
 const error = ref('');
 const created = ref(null);
-const roleOptions = [{ v: 'HR', l: 'HR (HRMO)' }, { v: 'ACCOUNTING', l: 'Accounting' }, { v: 'OSH', l: 'OSH' }, { v: 'CAO', l: 'Chief Admin Officer' }, { v: 'MANAGEMENT', l: 'Management (reports)' }, { v: 'ADMIN', l: 'System admin' }];
+const roleOptions = [{ v: 'HR', l: 'HR (HRMO)' }, { v: 'OSH', l: 'OSH' }, { v: 'ACCOUNTING', l: 'Accounting' }, { v: 'ADMIN', l: 'Admin (MIS)' }];
 
 async function load() { rows.value = await api.get('/admin/employees' + qs({ q: q.value, department_id: dept.value, active: showInactive.value ? 'all' : '' })); }
 

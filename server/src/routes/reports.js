@@ -100,7 +100,7 @@ router.get('/balances', wrap(async (req, res) => {
 }));
 
 // Leave without pay, for payroll deduction
-router.get('/lwop', requireRole('HR', 'ACCOUNTING', 'MANAGEMENT'), wrap(async (req, res) => {
+router.get('/lwop', requireRole('HR', 'ACCOUNTING'), wrap(async (req, res) => {
   const { from, to } = range(req);
   const rows = await db.query(
     `SELECT r.tracking_no, r.start_date, r.end_date, r.days_applied, r.days_with_pay, r.days_without_pay, r.final_action_at,

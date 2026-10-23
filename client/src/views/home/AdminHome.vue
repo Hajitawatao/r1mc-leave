@@ -50,7 +50,7 @@ import { api } from '../../api';
 import { ROLE_LABEL } from '../../workspaces';
 
 const a = ref(null);
-const roleRows = computed(() => ['ADMIN', 'HR', 'ACCOUNTING', 'OSH', 'CAO', 'MANAGEMENT'].map((k) => ({ key: k, label: ROLE_LABEL[k], n: (a.value.roles.find((r) => r.role === k) || { n: 0 }).n })));
+const roleRows = computed(() => ['ADMIN', 'HR', 'OSH', 'ACCOUNTING'].map((k) => ({ key: k, label: ROLE_LABEL[k], n: (a.value.roles.find((r) => r.role === k) || { n: 0 }).n })));
 const uptime = computed(() => { const m = a.value.server.uptime_min; return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${m % 60} min`; });
 onMounted(async () => { a.value = await api.get('/reports/home/admin'); });
 </script>
