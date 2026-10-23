@@ -70,8 +70,12 @@ router.get('/me', authenticate, wrap(async (req, res) => {
 router.post('/change-password', authenticate, wrap(async (req, res) => {
   const current = String(req.body.current_password || '');
   const next = String(req.body.new_password || '');
-  if (next.length < 8 || !/[A-Za-z]/.test(next) || !/\d/.test(next)) {
-    throw new HttpError(400, 'New password must be at least 8 characters and contain letters and numbers');
+  // Policy: at least 5 characters with at least one letter and one number. Uppercase and special characters are not required.
+  if (next.length < 5 || !/[A-Za-z]/.test(next) || !/\d/.test(next)) {
+    throw new HttpError(400, 'New password must be at least 5 characters and contain a letter and a number');
+  }
+  if (next.toLowerCase() === String(req.user.username).toLowerCase() || next.toLowerCase() === String(req.user.employee_no).toLowerCase()) {
+    throw new HttpError(400, 'New password cannot be your username or employee number');
   }
   const u = await db.one('SELECT password_hash FROM users WHERE id = ?', [req.user.id]);
   if (!(await bcrypt.compare(current, u.password_hash))) throw new HttpError(400, 'Current password is incorrect');

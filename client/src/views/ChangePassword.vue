@@ -7,7 +7,7 @@
       <label class="field">Current password<input class="input" type="password" v-model="current" autocomplete="current-password" required /></label>
       <label class="field">New password
         <input class="input" type="password" v-model="next" autocomplete="new-password" required />
-        <span class="help">At least 8 characters, with letters and numbers.</span>
+        <span class="help">At least 5 characters, with at least one letter and one number. Uppercase and special characters are not required.</span>
       </label>
       <label class="field">Confirm new password<input class="input" type="password" v-model="confirm" autocomplete="new-password" required /></label>
       <div class="row">
