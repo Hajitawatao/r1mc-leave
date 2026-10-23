@@ -18,6 +18,7 @@
         <div v-if="d.can_act" class="card" style="border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)">
           <div class="card-head"><h2>Your action · {{ d.current_step.name }}</h2></div>
           <div class="card-body stack" style="gap:12px">
+            <div v-if="d.admin_override" class="alert warn">You are not the approver for this step. As Admin (MIS) you can still act, and the history will show it as <strong>[Admin override]</strong>.</div>
             <div v-if="d.current_step.certifies_credits" class="alert info">
               This step certifies leave credits. Credits are deducted on final approval; any days beyond the available balance become leave without pay automatically.
               <label class="field" style="margin-top:8px">Days without pay (override, optional)

@@ -285,16 +285,24 @@ router.put('/settings', ADMIN, wrap(async (req, res) => {
   res.json({ ok: true });
 }));
 
-router.get('/audit', ADMIN, wrap(async (req, res) => {
-  const where = ['1=1'];
-  const params = [];
-  if (req.query.action) { where.push('a.action LIKE ?'); params.push(`%${req.query.action}%`); }
-  if (req.query.from) { where.push('a.created_at >= ?'); params.push(req.query.from); }
-  if (req.query.to) { where.push('a.created_at < DATE_ADD(?, INTERVAL 1 DAY)'); params.push(req.query.to); }
-  res.json(await db.query(
-    `SELECT a.*, u.username, CONCAT(e.first_name,' ',e.last_name) user_name FROM audit_logs a
-       LEFT JOIN users u ON u.id = a.user_id LEFT JOIN employees e ON e.id = u.employee_id
-      WHERE ${where.join(' AND ')} ORDER BY a.id DESC LIMIT 500`, params));
+// Audit entries are still recorded (SRD 3.2.7) but there is no screen for them by request.
+
+
+
+// ---------- Roles & access (who holds which role) ----------
+router.get('/roles', HR, wrap(async (req, res) => {
+  const members = await db.query(
+    `SELECT r.role, u.id user_id, u.username, u.is_active, e.id employee_id, e.employee_no, e.last_name, e.first_name, e.position, d.name department_name
+       FROM user_roles r JOIN users u ON u.id = r.user_id JOIN employees e ON e.id = u.employee_id LEFT JOIN departments d ON d.id = e.department_id
+      ORDER BY r.role, e.last_name`);
+  const supervisors = await db.query(
+    `SELECT s.id employee_id, s.employee_no, s.last_name, s.first_name, s.position, COUNT(e.id) reports
+       FROM employees s JOIN employees e ON e.supervisor_id = s.id AND e.is_active = 1 WHERE s.is_active = 1 GROUP BY s.id ORDER BY s.last_name`);
+  const heads = await db.query(
+    `SELECT d.id, d.name department_name, e.id employee_id, e.employee_no, e.last_name, e.first_name FROM departments d
+       LEFT JOIN employees e ON e.id = d.head_employee_id WHERE d.is_active = 1 ORDER BY d.name`);
+  const employees = (await db.one('SELECT COUNT(*) n FROM employees WHERE is_active = 1')).n;
+  res.json({ members, supervisors, heads, employees });
 }));
 
 router.get('/today', wrap(async (req, res) => res.json({ today: today() })));

@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="page-head">
-      <div><h1>Reports</h1><div class="sub">{{ store.user.org_wide ? 'Organization-wide' : 'Your team' }} leave utilization, balances and leave without pay.</div></div>
+      <div><div class="ws-banner">{{ ws.label }} workspace</div><h1>Reports</h1><div class="sub">{{ store.user.org_wide ? 'Organization-wide' : 'Your team' }} leave utilization, balances and leave without pay.</div></div>
     </div>
     <div class="tabs">
       <button :class="{ on: tab === 'overview' }" @click="tab = 'overview'">Overview</button>
@@ -110,13 +110,16 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { api, qs, download } from '../api';
-import { store, hasRole } from '../store';
+import { store, hasRole, currentWorkspace } from '../store';
 import { fmtDays, fmtNum, STATUS_LABEL } from '../format';
 
+const ws = computed(() => currentWorkspace());
 const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 const y = new Date().getFullYear();
-const tab = ref('overview');
+const route = useRoute();
+const tab = ref(['summary', 'balances', 'lwop'].includes(route.query.tab) ? route.query.tab : 'overview');
 const dash = ref(null);
 const depts = ref([]);
 const summary = ref([]);
@@ -138,5 +141,7 @@ async function loadLwop() { lwop.value = (await api.get('/reports/lwop' + qs(l))
 onMounted(async () => {
   [dash.value, depts.value] = await Promise.all([api.get('/reports/dashboard'), api.get('/admin/departments')]);
   loadSummary();
+  if (tab.value === 'balances') loadBalances();
+  if (tab.value === 'lwop') loadLwop();
 });
 </script>

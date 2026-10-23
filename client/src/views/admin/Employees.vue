@@ -75,6 +75,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { api, qs } from '../../api';
 import { toast, hasRole } from '../../store';
 import { fmtDate } from '../../format';
@@ -83,7 +84,8 @@ import EmployeePicker from '../../components/EmployeePicker.vue';
 
 const rows = ref([]);
 const depts = ref([]);
-const q = ref('');
+const route = useRoute();
+const q = ref(route.query.q || '');
 const dept = ref('');
 const showInactive = ref(false);
 const form = ref(null);
@@ -129,5 +131,9 @@ async function createAccount() {
   try { const r = await api.post(`/admin/employees/${form.value.id}/account`); created.value = r; await load(); form.value.user_id = rows.value.find((x) => x.id === form.value.id)?.user_id; } catch (e) { error.value = e.message; }
 }
 
-onMounted(async () => { depts.value = await api.get('/admin/departments'); await load(); });
+onMounted(async () => {
+  depts.value = await api.get('/admin/departments');
+  await load();
+  if (route.query.q && rows.value.length === 1) edit(rows.value[0]);
+});
 </script>

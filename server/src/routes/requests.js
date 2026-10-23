@@ -283,7 +283,7 @@ router.get('/:id', wrap(async (req, res) => {
   const attachments = await db.query('SELECT id, original_name, mime_type, size_bytes, uploaded_at FROM request_attachments WHERE request_id = ?', [id]);
   const current = steps.find((s) => s.step_order === r.current_step_order);
   const perm = wf.canActOnStep(req.user, current, r);
-  const out = { request: r, employee, steps, actions, attachments, can_act: perm.ok, current_step: current || null };
+  const out = { request: r, employee, steps, actions, attachments, can_act: perm.ok, admin_override: !!perm.override, current_step: current || null };
   const isOwner = r.employee_id === req.user.employee_id;
   out.can_cancel = (['PENDING', 'RETURNED'].includes(r.status) && (isOwner || req.user.roles.includes('HR') || req.user.roles.includes('ADMIN')))
     || (r.status === 'APPROVED' && (req.user.roles.includes('HR') || req.user.roles.includes('ADMIN')));

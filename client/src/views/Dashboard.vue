@@ -2,6 +2,7 @@
   <div class="page">
     <div class="page-head">
       <div>
+        <div class="ws-banner">Employee workspace</div>
         <h1>Good {{ greeting }}, {{ store.user.first_name }}</h1>
         <div class="sub">{{ store.user.position }}<span v-if="store.user.department_name"> · {{ store.user.department_name }}</span></div>
       </div>

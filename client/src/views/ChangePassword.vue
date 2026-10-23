@@ -22,7 +22,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '../api';
-import { store, loadMe, toast } from '../store';
+import { store, loadMe, toast, currentWorkspace } from '../store';
 
 const router = useRouter();
 const current = ref('');
@@ -39,7 +39,7 @@ async function submit() {
     await api.post('/auth/change-password', { current_password: current.value, new_password: next.value });
     await loadMe();
     toast('Password changed');
-    router.push('/');
+    router.push(currentWorkspace().home);
   } catch (e) {
     error.value = e.message;
   } finally {

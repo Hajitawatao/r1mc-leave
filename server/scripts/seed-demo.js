@@ -7,17 +7,20 @@ const config = require('../src/config');
 const DEPTS = [
   ['NSG', 'Nursing Service'], ['HRMO', 'Human Resource Management Office'], ['ACCTG', 'Accounting Section'],
   ['OSH', 'Occupational Safety and Health'], ['MIS', 'Management Information Service'],
+  ['ADM', 'Administrative Division'], ['OMCC', 'Office of the Medical Center Chief'],
 ];
 // employee_no, last, first, sex, position, dept, supervisor_no, roles, VL, SL
 const EMPS = [
-  ['D-1001', 'Reyes', 'Maria', 'F', 'Chief Nurse', 'NSG', null, ['MANAGEMENT'], 40, 55],
+  ['D-1001', 'Reyes', 'Maria', 'F', 'Chief Nurse', 'NSG', null, [], 40, 55],
   ['D-1002', 'Santos', 'Ana', 'F', 'Nurse II', 'NSG', 'D-1001', [], 12.5, 10],
   ['D-1003', 'Garcia', 'Jose', 'M', 'Nurse I', 'NSG', 'D-1001', [], 1, 3],
   ['D-2001', 'Mamaril', 'Andre', 'M', 'Supervising Administrative Officer', 'HRMO', null, ['HR'], 30, 30],
   ['D-2002', 'Bautista', 'Liza', 'F', 'Administrative Officer III', 'HRMO', 'D-2001', ['HR'], 15, 15],
   ['D-3001', 'Ramos', 'Carlo', 'M', 'Accountant III', 'ACCTG', null, ['ACCOUNTING'], 20, 20],
   ['D-4001', 'Flores', 'Grace', 'F', 'Medical Officer III (OSH)', 'OSH', null, ['OSH'], 20, 20],
-  ['D-5001', 'Valdez', 'Kelvin', 'M', 'Computer Maintenance Technologist III', 'MIS', null, [], 18, 22],
+  ['D-5001', 'Valdez', 'Kelvin', 'M', 'Computer Maintenance Technologist III', 'MIS', null, ['ADMIN'], 18, 22],
+  ['D-6001', 'Aquino', 'Ramon', 'M', 'Chief Administrative Officer', 'ADM', 'D-7001', ['CAO'], 45, 50],
+  ['D-7001', 'Mendoza', 'Elena', 'F', 'Medical Center Chief II', 'OMCC', null, ['MANAGEMENT'], 60, 60],
 ];
 
 async function main() {
@@ -45,11 +48,13 @@ async function main() {
     }
   }
   for (const [no, , , , , , sup] of EMPS) if (sup) await db.query('UPDATE employees SET supervisor_id = ? WHERE id = ?', [ids[sup], ids[no]]);
-  for (const [code, head] of [['NSG', 'D-1001'], ['HRMO', 'D-2001'], ['ACCTG', 'D-3001'], ['OSH', 'D-4001'], ['MIS', 'D-5001']]) {
+  for (const [code, head] of [['NSG', 'D-1001'], ['HRMO', 'D-2001'], ['ACCTG', 'D-3001'], ['OSH', 'D-4001'], ['MIS', 'D-5001'], ['ADM', 'D-6001'], ['OMCC', 'D-7001']]) {
     await db.query('UPDATE departments SET head_employee_id = ? WHERE code = ?', [ids[head], code]);
   }
   await db.end();
-  console.log('Demo data loaded. Log in with the employee number in lowercase (e.g. d-1002) and password Demo@1234.');
+  console.log('Demo data loaded. Password for every demo account: Demo@1234');
+  console.log('  d-1002 Employee (Nurse) | d-1001 Supervisor (Chief Nurse) | d-4001 OSH | d-2002 HR | d-3001 Accounting');
+  console.log('  d-6001 CAO | d-7001 Management (Medical Center Chief) | d-5001 Admin (MIS)');
 }
 
 main().catch((e) => { console.error(e.message); process.exit(1); });

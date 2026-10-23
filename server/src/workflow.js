@@ -184,12 +184,17 @@ function canActOnStep(user, step, request) {
   if (step.approver_type === 'ROLE') {
     if (user.roles.includes(step.approver_role)) return { ok: true };
     if (user.delegated_roles.includes(step.approver_role)) return { ok: true, onBehalfOf: null, delegated: true };
-    return { ok: false };
+    return adminOverride(user);
   }
   if (step.approver_employee_id === user.employee_id) return { ok: true };
   const d = user.delegated_from.find((x) => x.employee_id === step.approver_employee_id);
   if (d) return { ok: true, onBehalfOf: d.user_id };
-  return { ok: false };
+  return adminOverride(user);
+}
+
+// Admin (MIS) can act on any step; the action is labeled as an override in the history and audit trail.
+function adminOverride(user) {
+  return user.roles.includes('ADMIN') ? { ok: true, override: true } : { ok: false };
 }
 
 /** SQL fragment + params selecting request_steps rows (alias rs) the user can act on now. */
@@ -236,7 +241,9 @@ async function act(user, requestId, opts) {
     const step = await t.one('SELECT * FROM request_steps WHERE request_id = ? AND step_order = ?', [r.id, r.current_step_order]);
     const perm = canActOnStep(user, step, r);
     if (!perm.ok) throw new HttpError(403, 'You are not the approver for the current step of this request');
-    const remarks = String(opts.remarks || '').trim();
+    let remarks = String(opts.remarks || '').trim();
+    if (perm.override && remarks) remarks = `[Admin override] ${remarks}`;
+    else if (perm.override) remarks = '[Admin override]';
     const lt = await getLeaveType(t.query, r.leave_type_id);
     const empUser = await employeeUserId(t.query, r.employee_id);
     const label = `${r.tracking_no} (${lt.name}, ${r.start_date}${r.end_date !== r.start_date ? ' to ' + r.end_date : ''})`;
@@ -285,7 +292,7 @@ async function act(user, requestId, opts) {
       return { status: 'APPROVED', ...split };
     }
 
-    if (!remarks) throw new HttpError(400, 'Remarks are required when returning or disapproving');
+    if (!String(opts.remarks || '').trim()) throw new HttpError(400, 'Remarks are required when returning or disapproving');
 
     if (opts.action === 'RETURN') {
       await t.query(`UPDATE request_steps SET status = 'RETURNED', acted_by_user_id = ?, acted_at = NOW(), remarks = ? WHERE id = ?`, [user.id, remarks, step.id]);

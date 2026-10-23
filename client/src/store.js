@@ -1,5 +1,6 @@
 import { reactive } from 'vue';
 import { api } from './api';
+import { availableWorkspaces, defaultWorkspace, WORKSPACES } from './workspaces';
 
 export const store = reactive({
   user: null,
@@ -7,6 +8,7 @@ export const store = reactive({
   unread: 0,
   inbox: 0,
   toasts: [],
+  workspace: 'EMPLOYEE',
 });
 
 export async function loadMe() {
@@ -15,8 +17,21 @@ export async function loadMe() {
   } catch (e) {
     store.user = null;
   }
+  if (store.user) {
+    let saved = null;
+    try { saved = localStorage.getItem(`lv_ws_${store.user.id}`); } catch (e) { /* storage unavailable */ }
+    const keys = availableWorkspaces(store.user).map((w) => w.key);
+    store.workspace = saved && keys.includes(saved) ? saved : defaultWorkspace(store.user);
+  }
   return store.user;
 }
+
+export function setWorkspace(key) {
+  store.workspace = key;
+  try { localStorage.setItem(`lv_ws_${store.user.id}`, key); } catch (e) { /* storage unavailable */ }
+}
+
+export const currentWorkspace = () => ({ key: store.workspace, ...WORKSPACES[store.workspace] });
 
 export async function loadSettings() {
   try { store.settings = await api.get('/admin/settings'); } catch (e) { /* ignore */ }

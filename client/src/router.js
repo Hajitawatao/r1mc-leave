@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import { store, loadMe, hasRole } from './store';
+import { store, loadMe, hasRole, currentWorkspace } from './store';
 
 const routes = [
   { path: '/login', name: 'login', component: () => import('./views/Login.vue'), meta: { public: true } },
@@ -24,7 +24,12 @@ const routes = [
   { path: '/admin/credits', name: 'credits', component: () => import('./views/admin/Credits.vue'), meta: { roles: ['HR'] } },
   { path: '/admin/import', name: 'import', component: () => import('./views/admin/Import.vue'), meta: { roles: ['HR'] } },
   { path: '/admin/settings', name: 'settings', component: () => import('./views/admin/Settings.vue'), meta: { roles: ['ADMIN'] } },
-  { path: '/admin/audit', name: 'audit', component: () => import('./views/admin/Audit.vue'), meta: { roles: ['ADMIN'] } },
+  { path: '/admin/roles', name: 'roles', component: () => import('./views/admin/Roles.vue'), meta: { roles: ['HR'] } },
+  { path: '/home/approver', name: 'home-approver', component: () => import('./views/home/ApproverHome.vue') },
+  { path: '/home/hr', name: 'home-hr', component: () => import('./views/home/HRHome.vue'), meta: { roles: ['HR'] } },
+  { path: '/home/accounting', name: 'home-accounting', component: () => import('./views/home/AccountingHome.vue'), meta: { roles: ['ACCOUNTING'] } },
+  { path: '/home/admin', name: 'home-admin', component: () => import('./views/home/AdminHome.vue'), meta: { roles: ['ADMIN'] } },
+  { path: '/account', name: 'account', component: () => import('./views/Account.vue') },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ];
 
@@ -35,6 +40,8 @@ router.beforeEach(async (to) => {
   if (!store.user) await loadMe();
   if (!store.user) return { name: 'login', query: { next: to.fullPath } };
   if (store.user.must_change_password && to.name !== 'change-password') return { name: 'change-password' };
+  // "/" is the Employee dashboard; in any other workspace it opens that workspace's own home
+  if (to.path === '/' && store.workspace !== 'EMPLOYEE') return currentWorkspace().home;
   if (to.meta.roles && !hasRole(...to.meta.roles)) return { name: 'dashboard' };
   if (to.meta.team && !(store.user.org_wide || store.user.is_supervisor)) return { name: 'dashboard' };
   return true;

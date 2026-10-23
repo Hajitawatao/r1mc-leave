@@ -49,7 +49,7 @@
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { api } from '../api';
-import { loadMe } from '../store';
+import { loadMe, currentWorkspace } from '../store';
 
 const route = useRoute();
 const router = useRouter();
@@ -71,7 +71,7 @@ async function submit() {
     const r = await api.post('/auth/login', { username: username.value, password: password.value });
     await loadMe();
     if (r.must_change_password) router.push({ name: 'change-password' });
-    else router.push(route.query.next || '/');
+    else router.push(route.query.next || currentWorkspace().home);
   } catch (e) {
     error.value = e.message;
   } finally {

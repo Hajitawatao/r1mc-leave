@@ -21,16 +21,28 @@ It runs on the hospital LAN. Staff open it in a browser and nothing is installed
 | Centralized database (3.2.4) | All data lives in one MySQL database. The Excel leave ledger is replaced by a per-employee ledger (leave card). |
 | Reports & analytics (3.2.5, 4.1.5) | Dashboard showing who is on leave today, absenteeism, monthly trend and usage by leave type. Leave summary by type, department, employee or month. Balance reconciliation report. **LWOP report for payroll**. CSV export everywhere. Supervisors see their own team only; HR, Accounting and Management see the whole hospital. |
 | Integration with HRIS/payroll (3.2.6) | Employees and opening balances are imported from Excel/CSV (Medsys export + leave ledger). Payroll receives the LWOP report as CSV. See "Not included" below. |
-| Security (3.2.7, RA 10173) | Accounts are created by HR only (no self-registration). Passwords are bcrypt-hashed, and the initial password must be changed at first login. Accounts lock for 15 minutes after 5 failed logins. Access is role-based. Attachments are visible only to the applicant, the applicant's approvers and HR. A full **audit trail** records logins, every leave action, credit changes and configuration changes. |
+| Security (3.2.7, RA 10173) | Accounts are created by HR only (no self-registration). Passwords are bcrypt-hashed, and the initial password must be changed at first login. Accounts lock for 15 minutes after 5 failed logins. Access is role-based. Attachments are visible only to the applicant, the applicant's approvers and HR. Logins, leave actions, credit changes and configuration changes are recorded in an audit log in the database (SRD 3.2.7). By request there is no screen for it. Every application still shows its own action history. |
 | CSC Form 6 | Every application prints as **CSC Form No. 6 (Revised 2020)**. The 7.A credit certification and approver names are filled in automatically. |
 
 ### Leave types preloaded (CSC Omnibus Rules on Leave)
 VL and SL each earn **1.25 days per month**. Also preloaded: Mandatory/Forced (charged to VL, 5 days a year), Maternity (105 calendar days), Paternity (7), Special Privilege (3 a year), Solo Parent (7), Study, VAWC (10), Rehabilitation, Special Leave Benefits for Women, Special Emergency/Calamity (5), and Adoption.
 **HRMO must review every rule** under *Leave types & approvals* before go-live. All rules can be edited.
 
-### Roles
-| Role | Can do |
-|---|---|
+### Roles and workspaces
+Each role has its own **workspace**: its own colour, menu and dashboard. A person with several roles switches workspace from the drawer. The full capability matrix, mapped to the SRD, is under **Roles & access** in the app.
+
+| Role | SRD | Can do |
+|---|---|---|
+| Employee | 3.3 Employees | File leave, upload documents, track status, see own balances and leave card. Everyone has this role. |
+| Supervisor / Department head | 3.3 Supervisors and Managers, 4.1.2 | Approve, return or disapprove for direct reports or department; see team applications and reports. **Not assigned as a role**: it follows the *Immediate supervisor* and *Department head* fields. |
+| OSH | Process flow | Medical clearance of sick leave. |
+| HRMO | 3.3 HRMO Staff, 4.1.3 HRIC | Validate, certify credits, mark LWOP. Manage employees, accounts, credits, import, leave types, routes, holidays. All applications and reports. |
+| Accounting | 3.2.6, process flow | Payroll review step; LWOP report and balance reconciliation; all applications. |
+| CAO | 4.1.3 CAO Action Officer (OSM) | Approval step if added to a route; all applications and reports (record-keeping). |
+| Management | 3.3 Hospital Management | Read-only analytics and all applications. |
+| Admin (MIS) | 3.3 MIS Team | **Everything**, including settings and granting the Admin role. Can act on any approval step; such actions show as **[Admin override]** in the history. |
+
+---|---|
 | Every employee | File leave, track it, see own leave card, delegate approval if they approve for others |
 | Supervisor / Department head | Approve for their direct reports or department, see team applications and reports. This is **not** a role: it follows the *Immediate supervisor* field and the *Department head* field. |
 | HR | Everything HR: employees, accounts, credits, accruals, import, leave types, routes, holidays, all reports, and the HR approval step |
@@ -73,7 +85,7 @@ Replace the files with the new version, keeping `server\.env` and `server\upload
 
 ## UAT / demo data
 `npm run seed:demo` adds departments and employees covering every approver role. **Do not run it on the production database.**
-Log in with `d-1002` (nurse), `d-1001` (chief nurse/supervisor), `d-2002` (HR), `d-3001` (accounting) or `d-4001` (OSH). The password is `Demo@1234` for all of them.
+Password `Demo@1234` for all: `d-1002` Employee (nurse) · `d-1001` Supervisor (chief nurse) · `d-4001` OSH · `d-2002` HRMO · `d-3001` Accounting · `d-6001` CAO · `d-7001` Management · `d-5001` Admin (MIS).
 
 ## Development
 ```
