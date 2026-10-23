@@ -40,11 +40,15 @@ echo [3/3] Creating the database and tables
 node server\scripts\migrate.js
 if errorlevel 1 goto fail
 
+set "PORT=8080"
+for /f "usebackq eol=# tokens=1,* delims==" %%a in ("server\.env") do (
+  if /i "%%a"=="PORT" set "PORT=%%b"
+)
 echo.
 echo ==========================================================
 echo   Setup complete.
 echo   1. Run start.bat to start the system.
-echo   2. Open http://localhost:8080 and log in as "admin".
+echo   2. Open http://localhost:%PORT% and log in as "admin".
 echo      The admin password is shown above. Change it at first login.
 echo   3. Optional: run install-autostart.bat as Administrator so
 echo      the system starts with Windows and the firewall allows
